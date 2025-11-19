@@ -1,16 +1,27 @@
 export interface PDFRecord {
-  id: string;
-  slrCode: string;
-  course: string;
-  semester: string;
-  year: number;
-  examSession: string;
-  pdfName: string;
-  uploadedDate: string;
-  folderPath: string;
-  ocrStatus: 'completed' | 'pending' | 'not_started';
-  studentRecords?: StudentRecord[];
+  id: number;
+
+  event_year: string | null;
+  course_name: string | null;
+  pattern_name?: string | null;
+  exam_type?: string | null;
+
+  term_name: string | null;
+  seat_no: string | null;
+  prn_no: string | null;
+
+  college_code?: string | null;
+  college_name?: string | null;   // ADD THIS SAFELY
+
+  name_of_student: string | null;
+
+  pdf_link?: string | null;       // ADD THIS SAFELY
+
+  total_credit?: string | null;
+  total_egp?: string | null;
+  sgpa?: string | null;
 }
+
 
 export interface StudentRecord {
   seatNumber: string;

@@ -1,9 +1,18 @@
-import { useState } from 'react';
-import { Eye, Download, FileText, Search, Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Eye, Download, FileText, Search } from 'lucide-react';
+
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from './ui/select';
+
 import {
   Table,
   TableBody,
@@ -12,162 +21,203 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table';
+
+import { getStudents } from '../services/api';
 import { PDFRecord } from '../types';
-import { pdfRecords } from '../data/mockData';
 
 interface PDFLibraryProps {
-  onPdfSelect?: (pdfId: string) => void;
+  onPdfSelect?: (pdfLink: string) => void;
 }
 
 export function PDFLibrary({ onPdfSelect }: PDFLibraryProps) {
+  const [records, setRecords] = useState<PDFRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterYear, setFilterYear] = useState<string>('all');
   const [filterCourse, setFilterCourse] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
+
   const itemsPerPage = 10;
 
-  // Filter logic
-  const filteredRecords = pdfRecords.filter((record) => {
-    const matchesSearch = 
+  // Fetch data
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const result = await getStudents();
+        setRecords(result);
+      } catch (err) {
+        console.error("Failed to load student records:", err);
+      }
+    };
+    load();
+  }, []);
+
+  // ---------------- FILTERS ----------------
+  const filteredRecords = records.filter((record) => {
+    const search = searchQuery.toLowerCase();
+
+    const matchesSearch =
       searchQuery === '' ||
-      record.slrCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.pdfName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.course.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesYear = filterYear === 'all' || record.year.toString() === filterYear;
-    const matchesCourse = filterCourse === 'all' || record.course === filterCourse;
-    
+      record.name_of_student?.toLowerCase().includes(search) ||
+      record.course_name?.toLowerCase().includes(search) ||
+      record.pdf_link?.toLowerCase().includes(search) ||
+      record.prn_no?.toLowerCase().includes(search) ||
+      record.seat_no?.toLowerCase().includes(search);
+
+    const matchesYear = filterYear === 'all' || record.event_year === filterYear;
+    const matchesCourse = filterCourse === 'all' || record.course_name === filterCourse;
+
     return matchesSearch && matchesYear && matchesCourse;
   });
+
+  // Dynamic filters
+  const years = Array.from(new Set(records.map(r => r.event_year))).filter(Boolean);
+  const courses = Array.from(new Set(records.map(r => r.course_name))).filter(Boolean);
 
   // Pagination
   const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedRecords = filteredRecords.slice(startIndex, startIndex + itemsPerPage);
 
-  const getStatusBadge = (status: PDFRecord['ocrStatus']) => {
-    const variants = {
-      completed: { variant: 'default' as const, label: 'Completed', className: 'bg-green-100 text-green-700' },
-      pending: { variant: 'secondary' as const, label: 'Pending', className: 'bg-amber-100 text-amber-700' },
-      not_started: { variant: 'secondary' as const, label: 'Not Started', className: 'bg-gray-100 text-gray-700' },
-    };
-    const config = variants[status];
-    return <Badge variant={config.variant} className={config.className}>{config.label}</Badge>;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed":
+        return <Badge variant="green">Completed</Badge>;
+      case "pending":
+        return <Badge variant="yellow">Pending</Badge>;
+      default:
+        return <Badge variant="gray">N/A</Badge>;
+    }
   };
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-gray-900 mb-2">PDF Library</h1>
-        <p className="text-gray-500">Browse and manage all scanned documents</p>
-      </div>
 
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+      <h1 className="text-xl font-semibold mb-1">PDF Library</h1>
+      <p className="text-gray-500 mb-6">Browse and manage all scanned documents</p>
+
+      {/* FILTERS */}
+      <div className="bg-white p-4 rounded-lg border mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Search by SLR code, PDF name, course..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
           
+          {/* Search */}
+          <div className="md:col-span-2 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 text-gray-400" />
+            <Input
+              placeholder="Search by name, PRN, seat number, course..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Year */}
           <Select value={filterYear} onValueChange={setFilterYear}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Year" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Years</SelectItem>
-              <SelectItem value="1981">1981</SelectItem>
-              <SelectItem value="1982">1982</SelectItem>
+              {years.map((yr) => (
+                <SelectItem key={yr} value={yr}>{yr}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
+          {/* Course */}
           <Select value={filterCourse} onValueChange={setFilterCourse}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Course" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Courses</SelectItem>
-              <SelectItem value="Arts">Arts</SelectItem>
-              <SelectItem value="Science">Science</SelectItem>
-              <SelectItem value="Commerce">Commerce</SelectItem>
+              {courses.map((c) => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
+
         </div>
       </div>
 
-      {/* Results Count */}
+      {/* RESULTS COUNT */}
       <div className="mb-4 text-sm text-gray-600">
-        Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredRecords.length)} of {filteredRecords.length} results
+        Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredRecords.length)}  
+        of {filteredRecords.length} results
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      {/* TABLE */}
+      <div className="bg-white rounded-lg border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>SLR Code</TableHead>
+              <TableHead>College</TableHead>
+              <TableHead>Student</TableHead>
               <TableHead>Course</TableHead>
+              <TableHead>PRN</TableHead>
+              <TableHead>Seat No</TableHead>
               <TableHead>Semester</TableHead>
               <TableHead>Year</TableHead>
-              <TableHead>Exam Session</TableHead>
-              <TableHead>PDF Name</TableHead>
-              <TableHead>Uploaded</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {paginatedRecords.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} className="text-center py-8 text-gray-500">
-                  <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p>No PDFs found</p>
-                  <p className="text-sm">Try adjusting your filters</p>
+                  No records found
                 </TableCell>
               </TableRow>
             ) : (
               paginatedRecords.map((record) => (
-                <TableRow key={record.id} className="hover:bg-gray-50">
-                  <TableCell className="text-blue-600">{record.slrCode}</TableCell>
-                  <TableCell>{record.course}</TableCell>
-                  <TableCell>{record.semester}</TableCell>
-                  <TableCell>{record.year}</TableCell>
-                  <TableCell>{record.examSession}</TableCell>
-                  <TableCell>{record.pdfName}</TableCell>
-                  <TableCell className="text-sm text-gray-500">
-                    {new Date(record.uploadedDate).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(record.ocrStatus)}</TableCell>
+                <TableRow key={record.id}>
+                  <TableCell>{record.college_name ?? "N/A"}</TableCell>
+                  <TableCell>{record.name_of_student}</TableCell>
+                  <TableCell>{record.course_name}</TableCell>
+                  <TableCell>{record.prn_no}</TableCell>
+                  <TableCell>{record.seat_no}</TableCell>
+                  <TableCell>{record.term_name}</TableCell>
+                  <TableCell>{record.event_year}</TableCell>
                   <TableCell>
-                    <div className="flex items-center justify-end gap-2">
+                    {getStatusBadge(record.pdf_link ? "completed" : "pending")}
+                  </TableCell>
+
+                  {/* ACTIONS */}
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+
+                      {/* View PDF */}
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => onPdfSelect?.(record.id)}
+                        onClick={() => record.pdf_link && onPdfSelect?.(record.pdf_link)}
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
-                        <Download className="w-4 h-4" />
-                      </Button>
+
+                      {/* Download */}
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        disabled={record.ocrStatus === 'not_started'}
-                        onClick={() => onPdfSelect?.(record.id)}
+                        onClick={() => record.pdf_link && window.open(record.pdf_link)}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+
+                      {/* OCR Viewer */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={!record.pdf_link}
+                        onClick={() => record.pdf_link && onPdfSelect?.(record.pdf_link)}
                       >
                         <FileText className="w-4 h-4" />
                       </Button>
+
                     </div>
                   </TableCell>
+
                 </TableRow>
               ))
             )}
@@ -175,39 +225,39 @@ export function PDFLibrary({ onPdfSelect }: PDFLibraryProps) {
         </Table>
       </div>
 
-      {/* Pagination */}
+      {/* PAGINATION */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6">
+        <div className="flex justify-between mt-6">
           <Button
             variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
           >
             Previous
           </Button>
-          
-          <div className="flex items-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+
+          <div className="flex gap-2">
+            {Array.from({ length: totalPages }, (_, i) => (
               <Button
-                key={page}
-                variant={currentPage === page ? 'default' : 'outline'}
+                key={i + 1}
                 size="sm"
-                onClick={() => setCurrentPage(page)}
+                variant={currentPage === i + 1 ? "default" : "outline"}
+                onClick={() => setCurrentPage(i + 1)}
               >
-                {page}
+                {i + 1}
               </Button>
             ))}
           </div>
 
           <Button
             variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages}
-          >
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}>
             Next
           </Button>
         </div>
       )}
+
     </div>
   );
 }
