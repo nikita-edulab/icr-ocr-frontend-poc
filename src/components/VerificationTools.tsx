@@ -37,8 +37,8 @@ export function VerificationTools() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-gray-900 mb-2">Verification Tools</h1>
-        <p className="text-gray-500">Review and validate OCR extraction quality</p>
+        <h1 className="text-gray-900 mb-2">Digi Locker</h1>
+        <p className="text-gray-500">Review the status and view of Digi Locker</p>
       </div>
 
       {/* Quick Stats */}

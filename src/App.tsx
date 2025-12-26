@@ -12,7 +12,9 @@ import { PDFViewer } from './components/PDFViewer';
 export default function App() {
   const [activeView, setActiveView] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [selectedPdfId, setSelectedPdfId] = useState<string | null>(null);
+  const [selectedPdf, setSelectedPdf] = useState<{ url: string; prn: string } | null>(null);
+
+
 
   const renderView = () => {
     switch (activeView) {
@@ -20,7 +22,12 @@ export default function App() {
         return <DashboardOverview />;
       case 'explorer':
       case 'library':
-        return <ExplorerWithLibrary onPdfSelect={(id) => setSelectedPdfId(id)} />;
+        return <ExplorerWithLibrary
+  onPdfSelect={(data) => {
+    console.log("App received:", data);
+    setSelectedPdf(data);
+  }}
+/>
       case 'ocr':
         return <OCRRecords />;
       case 'verification':
@@ -53,12 +60,15 @@ export default function App() {
       </div>
 
       {/* PDF Viewer Modal */}
-      {selectedPdfId && (
-        <PDFViewer
-          pdfId={selectedPdfId}
-          onClose={() => setSelectedPdfId(null)}
-        />
-      )}
+      {selectedPdf && (
+      <PDFViewer
+        pdfId={selectedPdf.url}
+        highlightPRN={selectedPdf.prn}
+        onClose={() => setSelectedPdf(null)}
+      />
+    )}
+
+
     </div>
   );
 }

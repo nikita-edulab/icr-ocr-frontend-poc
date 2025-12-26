@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
 // -------- Dashboard Summary API ----------
@@ -21,3 +21,4 @@ export const getFolderTree = async () => {
   const res = await API.get("/folders/tree");
   return res.data;
 };
+

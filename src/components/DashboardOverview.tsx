@@ -98,7 +98,7 @@ export function DashboardOverview() {
         })}
       </div>
 
-      {/* Recent Activity + System Status — static for now */}
+      {/* Recent Activity + System Status — static for now 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <h3 className="text-gray-900 mb-4">Recent Uploads</h3>
@@ -133,7 +133,7 @@ export function DashboardOverview() {
         <Card className="p-6">
           <h3 className="text-gray-900 mb-4">System Status</h3>
 
-          {/* Dummy data */}
+         
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -166,7 +166,7 @@ export function DashboardOverview() {
             </div>
           </div>
         </Card>
-      </div>
+      </div>*/}
     </div>
   );
 }

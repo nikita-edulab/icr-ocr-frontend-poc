@@ -25,8 +25,7 @@ export function Sidebar({ activeView, onViewChange, collapsed, onToggleCollapse 
     { id: 'library', label: 'PDF Library', icon: FileText },
     { id: 'ocr', label: 'OCR Records', icon: ScanText },
     { id: 'verification', label: 'Verification Tools', icon: CheckSquare },
-    { id: 'search', label: 'Search', icon: Search },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    
   ];
 
   return (
