@@ -1,9 +1,36 @@
-import { Bell, User, Search } from 'lucide-react';
+import { Bell, User, Search, LogOut } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { useKeycloakAuth } from '../contexts/KeycloakContext';
 
 export function TopNav() {
+  const { keycloak } = useKeycloakAuth();
+
+  const handleLogout = () => {
+    keycloak?.logout({
+      redirectUri: window.location.origin,
+    });
+  };
+
+  // Get user info from token if available
+  const userInfo = keycloak?.tokenParsed as { 
+    preferred_username?: string;
+    email?: string;
+    name?: string;
+  } | undefined;
+
+  const displayName = userInfo?.name || userInfo?.preferred_username || 'Admin User';
+  const displayEmail = userInfo?.email || 'administrator@uni.edu';
+
   return (
     <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
       {/* Search Bar */}
@@ -31,13 +58,32 @@ export function TopNav() {
         </Button>
 
         <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-          <div className="text-right text-sm">
-            <div className="text-gray-900">Admin User</div>
-            <div className="text-xs text-gray-500">administrator@uni.edu</div>
-          </div>
-          <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center">
-            <User className="w-5 h-5 text-white" />
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="flex items-center gap-3 hover:bg-gray-50">
+                <div className="text-right text-sm">
+                  <div className="text-gray-900">{displayName}</div>
+                  <div className="text-xs text-gray-500">{displayEmail}</div>
+                </div>
+                <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{displayName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{displayEmail}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>

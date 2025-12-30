@@ -24,6 +24,7 @@ import {
 
 import { getStudents } from '../services/api';
 import { PDFRecord } from '../types';
+import { useKeycloakAuth } from '../contexts/KeycloakContext';
 
 import { PdfSelectData } from "./ExplorerWithLibrary"; // import the type
 
@@ -37,6 +38,7 @@ export function PDFLibrary({ onPdfSelect }: PDFLibraryProps) {
   const [filterYear, setFilterYear] = useState<string>('all');
   const [filterCourse, setFilterCourse] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const { keycloak } = useKeycloakAuth();
 
   const itemsPerPage = 10;
 
@@ -44,7 +46,8 @@ export function PDFLibrary({ onPdfSelect }: PDFLibraryProps) {
   useEffect(() => {
     const load = async () => {
       try {
-        const result = await getStudents();
+        const token = keycloak?.token;
+        const result = await getStudents(token);
         setRecords(result);
         console.log("API RESULT:", result);
       } catch (err) {
@@ -52,7 +55,7 @@ export function PDFLibrary({ onPdfSelect }: PDFLibraryProps) {
       }
     };
     load();
-  }, []);
+  }, [keycloak]);
 
   // ---------------- FILTERS ----------------
 const filteredRecords = records.filter((record) => {

@@ -3,10 +3,12 @@ import { FileText, ScanText, AlertCircle, Calendar, Upload, Clock } from "lucide
 import { Card } from "./ui/card";
 import { getDashboardSummary } from "../services/api";
 import { DashboardSummary } from "../types/student";
+import { useKeycloakAuth } from "../contexts/KeycloakContext";
 
 export function DashboardOverview() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const { keycloak } = useKeycloakAuth();
 
   useEffect(() => {
     loadSummary();
@@ -14,7 +16,8 @@ export function DashboardOverview() {
 
   const loadSummary = async () => {
     try {
-      const data = await getDashboardSummary();
+      const token = keycloak?.token;
+      const data = await getDashboardSummary(token);
       setSummary(data);
     } catch (error) {
       console.error("Dashboard API Error:", error);
