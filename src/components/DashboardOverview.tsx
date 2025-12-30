@@ -5,6 +5,7 @@ import { getDashboardSummary } from "../services/api";
 import { DashboardSummary } from "../types/student";
 import { useKeycloakAuth } from "../contexts/KeycloakContext";
 
+
 export function DashboardOverview() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);

@@ -38,10 +38,10 @@ export function VerificationTools() {
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-gray-900 mb-2">Digi Locker</h1>
-        <p className="text-gray-500">Review the status and view of Digi Locker</p>
+        <p className="text-gray-500">Implementation in progress</p>
       </div>
 
-      {/* Quick Stats */}
+      {/* Quick Stats 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card className="p-6">
           <div className="flex items-center justify-between">
@@ -82,9 +82,9 @@ export function VerificationTools() {
             <FileCheck className="w-8 h-8 text-purple-600" />
           </div>
         </Card>
-      </div>
+      </div>*/}
 
-      {/* Verification Queue */}
+      {/* Verification Queue 
       <div>
         <h3 className="text-gray-900 mb-4">Verification Queue</h3>
         <div className="space-y-4">
@@ -181,7 +181,7 @@ export function VerificationTools() {
             </Card>
           ))}
         </div>
-      </div>
+      </div>*/}
     </div>
   );
 }

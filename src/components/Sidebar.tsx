@@ -21,10 +21,10 @@ interface SidebarProps {
 export function Sidebar({ activeView, onViewChange, collapsed, onToggleCollapse }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard },
-    { id: 'explorer', label: 'Folder Explorer', icon: FolderTree },
+    /*{ id: 'explorer', label: 'Folder Explorer', icon: FolderTree },*/
     { id: 'library', label: 'PDF Library', icon: FileText },
     { id: 'ocr', label: 'OCR Records', icon: ScanText },
-    { id: 'verification', label: 'Verification Tools', icon: CheckSquare },
+    { id: 'verification', label: 'Digi Locker', icon: CheckSquare },
     
   ];
 

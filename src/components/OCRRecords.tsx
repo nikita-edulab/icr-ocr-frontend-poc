@@ -17,10 +17,10 @@ export function OCRRecords() {
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-gray-900 mb-2">OCR Records</h1>
-        <p className="text-gray-500">Monitor and manage OCR processing status</p>
+        <p className="text-gray-500">Implementation in progress</p>
       </div>
 
-      {/* Statistics */}
+      {/* Statistics 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="p-6">
           <div className="flex items-start justify-between mb-4">
@@ -66,9 +66,9 @@ export function OCRRecords() {
             <div className="h-full bg-gray-400" style={{ width: `${(notStartedCount / totalCount) * 100}%` }}></div>
           </div>
         </Card>
-      </div>
+      </div>*/}
 
-      {/* Overall Progress */}
+      {/* Overall Progress 
       <Card className="p-6 mb-8">
         <h3 className="text-gray-900 mb-4">Overall OCR Progress</h3>
         <div className="mb-2 flex items-center justify-between text-sm">
@@ -79,9 +79,9 @@ export function OCRRecords() {
         <p className="text-sm text-gray-500 mt-2">
           {completedCount} of {totalCount} documents processed
         </p>
-      </Card>
+      </Card>*/}
 
-      {/* Records List */}
+      {/* Records List 
       <div>
         <h3 className="text-gray-900 mb-4">Recent OCR Activity</h3>
         <div className="grid grid-cols-1 gap-4">
@@ -129,7 +129,7 @@ export function OCRRecords() {
             );
           })}
         </div>
-      </div>
+      </div>*/}
     </div>
   );
 }

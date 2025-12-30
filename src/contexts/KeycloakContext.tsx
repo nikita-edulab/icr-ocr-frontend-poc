@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+
 import Keycloak from 'keycloak-js';
 
 type KeycloakCtx = {
   keycloak: Keycloak | null;
   authenticated: boolean;
   initialized: boolean;
+  logout: () => void;
 };
 
 const KeycloakContext = createContext<KeycloakCtx | undefined>(undefined);
@@ -42,6 +44,14 @@ export function KeycloakProvider({ children }: { children: ReactNode }) {
       });
   }, []);
 
+  const logout = () => {
+    if (!keycloak) return;
+
+    keycloak.logout({
+      redirectUri: "http://localhost:3000/login",
+    });
+  };
+
   if (!initialized) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
@@ -63,7 +73,7 @@ export function KeycloakProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <KeycloakContext.Provider value={{ keycloak, authenticated, initialized }}>
+    <KeycloakContext.Provider value={{ keycloak, authenticated, initialized ,logout}}>
       {children}
     </KeycloakContext.Provider>
   );
